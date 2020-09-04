@@ -1,4 +1,30 @@
 .hero {
   background-image: url('./images/puma-hero.jpg');
-  height: 400px;
+  height: 600px;
+}
+
+.slider {
+  display: grid;
+  grid-template-columns: 0.5rem;
+  column-gap: 0.5rem;
+  grid-auto-flow: column;
+  grid-auto-columns: calc(60% - 2rem);
+}
+
+.slider::before,
+.slider::after {
+  content: '';
+  width: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .slider {
+    display: flex;
+    column-gap: 0.75rem;
+  }
+
+  .slider::before,
+  .slider::after {
+    width: 0;
+  }
 }

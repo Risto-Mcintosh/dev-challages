@@ -590,7 +590,8 @@ video {
   height: auto;
 }
 
-html,body {
+html,
+body {
   height: 100%;
 }
 
@@ -598,6 +599,9 @@ body {
   display: grid;
   grid-template-rows: -webkit-max-content 1fr -webkit-max-content;
   grid-template-rows: max-content 1fr max-content;
+  --text-opacity: 1;
+  color: #2d3748;
+  color: rgba(45, 55, 72, var(--text-opacity));
 }
 
 .container {
