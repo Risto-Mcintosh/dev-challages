@@ -2,6 +2,18 @@
 
 /* Write your own custom base styles here */
 
+.file-upload__button {
+  @apply transition-colors duration-100 ease-in;
+}
+
+.file-upload:focus ~ .file-upload__button {
+  @apply border-2 border-red-500 bg-blue-500;
+}
+
+.file-upload:hover ~ .file-upload__button {
+  @apply bg-blue-500;
+}
+
 /* Start purging... */
 @tailwind components;
 /* Stop purging. */

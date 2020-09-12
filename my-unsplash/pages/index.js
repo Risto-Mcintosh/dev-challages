@@ -115,17 +115,17 @@ function Home() {
           </div>
           <p class="text-center text-lg mb-3">Or</p>
           <form className="relative flex justify-center">
+            <input
+              className="absolute opacity-0 h-full cursor-pointer file-upload"
+              name="image"
+              type="file"
+            />
             <label
-              class="py-4 px-8 bg-blue-400 text-white text-lg rounded-lg"
+              class="py-4 px-8 bg-blue-400 text-white text-lg rounded-lg file-upload__button"
               htmlFor="image"
             >
               Choose A File
             </label>
-            <input
-              className="absolute opacity-0 h-full"
-              name="image"
-              type="file"
-            />
           </form>
         </div>
       </main>
