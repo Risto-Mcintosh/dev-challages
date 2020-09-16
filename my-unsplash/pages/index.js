@@ -1,6 +1,25 @@
 import Head from 'next/head';
 
-function Home() {
+export default function Home() {
+  const [image, setImage] = React.useState('');
+
+  async function upload() {
+    const formData = new FormData();
+    formData.append('upload_preset', process.env.UPLOAD_PRESET);
+    formData.append('file', image);
+    try {
+      await fetch(process.env.CLOUDINARY_URL, {
+        method: 'POST',
+        body: formData
+      }).then((res) => console.log(res));
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  function handleChange(e) {
+    setImage(e.target.files[0]);
+    upload();
+  }
   return (
     <div className="bg-blue-200 h-screen">
       <Head>
@@ -113,23 +132,23 @@ function Home() {
             </div>
             <p className="text-lg">Drag & Drop Your Image Here</p>
           </div>
-          <p class="text-center text-lg mb-3">Or</p>
-          <form className="relative flex justify-center">
+          <p className="text-center text-lg mb-3">Or</p>
+          <div className="relative flex justify-center">
             <input
               className="absolute opacity-0 h-full cursor-pointer file-upload"
               name="image"
               type="file"
+              onChange={handleChange}
             />
             <label
-              class="py-4 px-8 bg-blue-400 text-white text-lg rounded-lg file-upload__button"
+              className="py-4 px-8 bg-blue-400 text-white text-lg rounded-lg file-upload__button"
               htmlFor="image"
             >
               Choose A File
             </label>
-          </form>
+          </div>
         </div>
       </main>
     </div>
   );
 }
-export default Home;
