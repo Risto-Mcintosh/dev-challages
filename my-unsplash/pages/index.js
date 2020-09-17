@@ -3,6 +3,7 @@ import axios from 'axios';
 
 export default function Home() {
   const [image, setImage] = React.useState('');
+  const [uploadPercent, setUploadPercent] = React.useState(10);
   async function upload(file) {
     const formData = new FormData();
     formData.append('upload_preset', process.env.NEXT_PUBLIC_UPLOAD_PRESET);
@@ -12,6 +13,11 @@ export default function Home() {
         .post(process.env.NEXT_PUBLIC_CLOUDINARY_URL, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
+          },
+          onUploadProgress: (progressEvent) => {
+            setUploadPercent(
+              parseInt((progressEvent.loaded * 100) / progressEvent.total)
+            );
           }
         })
         .then((res) => console.log(res));
@@ -21,7 +27,6 @@ export default function Home() {
   }
   async function handleChange(e) {
     const file = e.target.files[0];
-    setImage(file);
     upload(file);
   }
   return (
@@ -151,6 +156,19 @@ export default function Home() {
               Choose A File
             </label>
           </div>
+          <aside className="absolute inset-0 flex items-center justify-center bg-blue-400">
+            <div className="w-2/4 p-6 bg-gray-100 rounded-lg">
+              <div>
+                <h3 className="text-left mb-3">Uploading....</h3>
+                <div className="h-2 relative rounded-lg bg-gray-400 overflow-hidden ">
+                  <div
+                    className="bg-blue-500 absolute h-full"
+                    style={{ width: `${uploadPercent}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
       </main>
     </div>
