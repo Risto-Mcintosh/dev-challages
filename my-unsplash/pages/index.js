@@ -1,24 +1,28 @@
 import Head from 'next/head';
+import axios from 'axios';
 
 export default function Home() {
   const [image, setImage] = React.useState('');
-
-  async function upload() {
+  async function upload(file) {
     const formData = new FormData();
-    formData.append('upload_preset', process.env.UPLOAD_PRESET);
-    formData.append('file', image);
+    formData.append('upload_preset', process.env.NEXT_PUBLIC_UPLOAD_PRESET);
+    formData.append('file', file);
     try {
-      await fetch(process.env.CLOUDINARY_URL, {
-        method: 'POST',
-        body: formData
-      }).then((res) => console.log(res));
+      await axios
+        .post(process.env.NEXT_PUBLIC_CLOUDINARY_URL, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then((res) => console.log(res));
     } catch (e) {
       console.log(e);
     }
   }
-  function handleChange(e) {
-    setImage(e.target.files[0]);
-    upload();
+  async function handleChange(e) {
+    const file = e.target.files[0];
+    setImage(file);
+    upload(file);
   }
   return (
     <div className="bg-blue-200 h-screen">
@@ -27,12 +31,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex items-center text-gray-900 justify-center w-full h-full">
-        <div className="w-1/2 max-w-5xl text-center bg-gray-100 rounded-lg p-8">
-          <h1 className="text-3xl mb-4 capitalize">Upload your image</h1>
+      <main className="flex items-center text-gray-900 justify-center  h-full">
+        <div className="max-w-5xl text-center bg-gray-100 rounded-lg p-8">
+          <h1 className="text-3xl mb-2 capitalize">Upload your image</h1>
           <p className="text-lg mb-3">Files should be JPEG, PNG, ect..</p>
 
-          <div className="flex justify-center flex-col items-center mb-3 p-12 bg-gray-300 border-blue-400 border-dashed border-2 rounded-lg">
+          <div className="flex justify-center flex-col items-center mb-2 p-2 bg-gray-300 border-blue-400 border-dashed border-2 rounded-lg">
             <div className="w-2/3 mb-10">
               <svg
                 className=""
@@ -132,7 +136,7 @@ export default function Home() {
             </div>
             <p className="text-lg">Drag & Drop Your Image Here</p>
           </div>
-          <p className="text-center text-lg mb-3">Or</p>
+          <p className="text-center text-lg mb-2">Or</p>
           <div className="relative flex justify-center">
             <input
               className="absolute opacity-0 h-full cursor-pointer file-upload"
