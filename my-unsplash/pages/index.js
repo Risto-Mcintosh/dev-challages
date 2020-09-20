@@ -1,5 +1,7 @@
 import Head from 'next/head';
 import axios from 'axios';
+import useDragAndDrop from '../utils/useDragAndDrop';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
   const [image, setImage] = React.useState('');
@@ -8,22 +10,26 @@ export default function Home() {
   const [showUploadSuccess, setUploadSuccess] = React.useState(false);
   const [uploadPercent, setUploadPercent] = React.useState(0);
   const [copyTextButton, setButtonText] = React.useState('Copy Link');
+  const [dropInContainerRef, dragState] = useDragAndDrop(upload);
   async function copyText(text) {
     await navigator.clipboard.writeText(text);
     setButtonText('Copied!');
-    console.log(this);
   }
 
   async function upload(file) {
-    setImage(
-      'https://res.cloudinary.com/dz06icf9k/image/upload/v1600407860/jp1avktjjuqazrm6naka.png'
-    );
-    setUploadProgress(false);
-    setUploadSuccess(true);
-    return;
+    if (!file) return;
+    setUploader(false);
+    setUploadProgress(true);
+    // setImage(
+    //   'https://res.cloudinary.com/dz06icf9k/image/upload/v1600407860/jp1avktjjuqazrm6naka.png'
+    // );
+    // setUploadProgress(false);
+    // setUploadSuccess(true);
+    // return;
     const formData = new FormData();
     formData.append('upload_preset', process.env.NEXT_PUBLIC_UPLOAD_PRESET);
     formData.append('file', file);
+
     try {
       await axios
         .post(process.env.NEXT_PUBLIC_CLOUDINARY_URL, formData, {
@@ -37,7 +43,7 @@ export default function Home() {
           }
         })
         .then((res) => {
-          // setImage(res.data.secure_url);
+          setImage(res.data.secure_url);
 
           setUploadProgress(false);
           setUploadSuccess(true);
@@ -47,12 +53,7 @@ export default function Home() {
       console.log(e);
     }
   }
-  async function handleChange(e) {
-    const file = e.target.files[0];
-    setUploader(false);
-    setUploadProgress(true);
-    upload(file);
-  }
+
   return (
     <div className="bg-blue-200 h-screen">
       <Head>
@@ -67,7 +68,14 @@ export default function Home() {
             <h1 className="text-3xl mb-2 capitalize">Upload your image</h1>
             <p className="text-lg mb-3">Files should be JPEG, PNG, ect..</p>
 
-            <div className="flex justify-center flex-col items-center mb-2 p-2 bg-gray-300 border-blue-400 border-dashed border-2 rounded-lg">
+            <div
+              ref={dropInContainerRef}
+              className={`flex justify-center transform ease-in-out duration-150 transition-all flex-col items-center mb-2 p-2 border-blue-400 border-dashed border-2 rounded-lg ${
+                dragState === 'dragenter'
+                  ? 'bg-blue-100 scale-105'
+                  : 'bg-gray-300'
+              }`}
+            >
               <div className="w-2/3 mb-10">
                 <svg
                   className=""
@@ -171,61 +179,83 @@ export default function Home() {
             <div className="relative flex justify-center">
               <input
                 className="absolute opacity-0 h-full cursor-pointer file-upload"
-                name="image"
+                name="image-upload"
                 type="file"
-                onChange={handleChange}
+                onChange={(e) => upload(e.target.files[0])}
               />
               <label
                 className="py-4 px-8 bg-blue-400 text-white text-lg rounded-lg file-upload__button"
-                htmlFor="image"
+                htmlFor="image-upload"
               >
                 Choose A File
               </label>
             </div>
           </div>
           {/* progress */}
-          <aside className={`${!showUploadProgress ? 'hidden' : 'block'}`}>
-            <h3 className="text-left mb-3">Uploading....</h3>
-            <div className="h-2 relative rounded-lg bg-gray-400 overflow-hidden ">
-              <div
-                className="bg-blue-500 absolute h-full"
-                style={{ width: `${uploadPercent}%` }}
-              ></div>
-            </div>
-          </aside>
-          <aside className={!showUploadSuccess ? 'hidden' : 'block'}>
-            <svg
-              className="text-green-500 h-12 w-12 inline-block"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <h2 className="mb-4 text-2xl">Uploaded Successfully!</h2>
-            <img
-              className="mb-4 m-auto w-10/12"
-              src={image}
-              alt="image upload"
-            />
-            <div className="flex items-center bg-gray-300 border border-gray-600 rounded-lg p-1">
-              <input
-                readOnly
-                className="truncate px-2 bg-transparent"
-                value={image}
-              />
-              <button
-                className="text-white rounded-lg flex-shrink-0 px-4 py-3 bg-blue-500"
-                onClick={() => copyText(image)}
+          <AnimatePresence>
+            {showUploadProgress && (
+              <motion.aside
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ display: 'none' }}
               >
-                {copyTextButton}
-              </button>
-            </div>
-          </aside>
+                <h3 className="text-left mb-3">Uploading....</h3>
+                <div className="h-2 relative rounded-lg bg-gray-400 overflow-hidden ">
+                  <div
+                    className="bg-blue-500 absolute h-full"
+                    style={{ width: `${uploadPercent}%` }}
+                  ></div>
+                </div>
+              </motion.aside>
+            )}
+          </AnimatePresence>
+          {/* Success */}
+          <AnimatePresence>
+            {showUploadSuccess && (
+              <motion.aside
+                initial={{ opacity: 0, scale: 0.4 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <svg
+                  className="text-green-500 h-12 w-12 inline-block"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <h2 className="mb-4 text-2xl">Uploaded Successfully!</h2>
+                <img
+                  className="mb-4 m-auto w-10/12"
+                  src={image}
+                  alt="image upload"
+                  style={{
+                    minHight: `${
+                      dropInContainerRef.current.getBoundingClientRect().height
+                    }px`
+                  }}
+                />
+                <div className="flex items-center bg-gray-300 border border-gray-600 rounded-lg p-1">
+                  <input
+                    readOnly
+                    className="truncate px-2 bg-transparent"
+                    value={image}
+                  />
+                  <button
+                    className="text-white rounded-lg flex-shrink-0 px-4 py-3 bg-blue-500"
+                    onClick={() => copyText(image)}
+                  >
+                    {copyTextButton}
+                  </button>
+                </div>
+              </motion.aside>
+            )}
+          </AnimatePresence>
         </div>
       </main>
     </div>
