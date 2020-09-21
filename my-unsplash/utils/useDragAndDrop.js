@@ -23,9 +23,7 @@ export default function useDragAndDrop(uploadFn) {
 
   React.useEffect(() => {
     const node = containerRef.current;
-    console.log('container:', node);
     if (node) {
-      console.log('add listeners');
       node.addEventListener('drag', preventDefaults);
       node.addEventListener('dragstart', preventDefaults);
       node.addEventListener('dragover', handelDragEnter);
