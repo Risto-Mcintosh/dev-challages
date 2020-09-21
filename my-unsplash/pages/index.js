@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import axios from 'axios';
 import useDragAndDrop from '../utils/useDragAndDrop';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,12 +19,6 @@ export default function Home() {
     if (!file) return;
     setUploader(false);
     setUploadProgress(true);
-    // setImage(
-    //   'https://res.cloudinary.com/dz06icf9k/image/upload/v1600407860/jp1avktjjuqazrm6naka.png'
-    // );
-    // setUploadProgress(false);
-    // setUploadSuccess(true);
-    // return;
     const formData = new FormData();
     formData.append('upload_preset', process.env.NEXT_PUBLIC_UPLOAD_PRESET);
     formData.append('file', file);
@@ -55,11 +48,6 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
       <div className="text-center bg-gray-100 rounded-lg py-8 px-4 w-full shadow-2xl">
         {/* uploader */}
         <div className={showUploader ? '' : 'hidden'}>
@@ -196,6 +184,7 @@ export default function Home() {
               initial={{ opacity: 0, x: -100 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ display: 'none' }}
+              transition={{ duration: 0 }}
             >
               <h3 className="text-left mb-3">Uploading....</h3>
               <div className="h-2 relative rounded-lg bg-gray-400 overflow-hidden ">
@@ -229,7 +218,7 @@ export default function Home() {
               </svg>
               <h2 className="mb-4 text-2xl">Uploaded Successfully!</h2>
               <img
-                className="mb-4 m-auto w-3/4 max-w-xs object-contain"
+                className="mb-4 m-auto max-w-xs object-contain"
                 src={image}
                 alt="image upload"
                 style={{
@@ -237,7 +226,6 @@ export default function Home() {
                   minHight: '200px'
                 }}
               />
-
               <div className="flex justify-between items-center bg-gray-300 border border-gray-600 rounded-lg p-1 m-auto md:w-3/4">
                 <input
                   readOnly
